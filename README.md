@@ -1,4 +1,4 @@
-# SJULTRA SOPs
+# SJULTRA SOP's
 
 Standard Operating Procedures for SJULTRA IT operations. This repo is a living index — new SOPs will be added over time.
 
