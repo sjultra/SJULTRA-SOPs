@@ -86,7 +86,7 @@ Import-Module ExchangeOnlineManagement -Verbose
 **Standard method (recommended)** — opens a browser/sign-in window that handles password + MFA automatically:
 
 ```powershell
-Connect-ExchangeOnline -UserPrincipalName admin@sjultra.com
+Connect-ExchangeOnline -UserPrincipalName admin@domain.com
 ```
 
 **Device code method** — only needed if the machine has no browser access (e.g., headless/remote session):
