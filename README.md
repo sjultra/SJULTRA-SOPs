@@ -10,6 +10,8 @@ Standard Operating Procedures for SJULTRA IT operations. This repo is a living i
 | [Fix User Unable to Schedule Teams Meetings in Outlook/OWA](sops/teams-meeting-scheduling-permission-fix.md) | Diagnosing and resolving the "You do not have permissions to invite others" error — mailbox meeting provider and misconfigured resource account checks. |
 | [Case Study (PDCA): User Unable to Schedule Teams Meetings](sops/teams-meeting-scheduling-pdca-case-study.md) | Full Plan-Do-Check-Act record of the troubleshooting behind the SOP above, including dead ends and what didn't work. |
 | [Enable FIDO2 / Passkey MFA in Microsoft Entra ID](sops/SOP%20-%20Enable%20FIDO2%20Passkey%20MFA%20(Microsoft%20Entra%20ID).md) | Opting in to passkey profiles, configuring device-bound/synced passkey settings, piloting, and rolling out phishing-resistant FIDO2 sign-in org-wide. |
+| [PDCA Plan: Enable FIDO2 / Passkey MFA in Microsoft Entra ID](sops/fido2-passkey-mfa-enablement-pdca.md) | Plan-Do-Check-Act framing behind the FIDO2/Passkey SOP above — objective, key decisions, pilot steps, verification checklist, and rollout/rollback actions. |
+| [Release and Allowlist False-Positive Phishing Quarantine (Microsoft 365 Defender)](sops/SOP%20-%20Release%20and%20Allowlist%20False-Positive%20Phishing%20Quarantine%20(Microsoft%20365%20Defender).md) | Diagnosing a Defender quarantine verdict, telling a false-positive phishing block apart from real spoofing via SPF/DKIM/DMARC, and safely overriding it with a Tenant Allow/Block List entry. |
 
 ## Adding a new SOP
 
