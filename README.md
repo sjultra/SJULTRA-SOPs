@@ -12,6 +12,7 @@ Standard Operating Procedures for SJULTRA IT operations. This repo is a living i
 | [Enable FIDO2 / Passkey MFA in Microsoft Entra ID](sops/SOP%20-%20Enable%20FIDO2%20Passkey%20MFA%20(Microsoft%20Entra%20ID).md) | Opting in to passkey profiles, configuring device-bound/synced passkey settings, piloting, and rolling out phishing-resistant FIDO2 sign-in org-wide. |
 | [PDCA Plan: Enable FIDO2 / Passkey MFA in Microsoft Entra ID](sops/fido2-passkey-mfa-enablement-pdca.md) | Plan-Do-Check-Act framing behind the FIDO2/Passkey SOP above — objective, key decisions, pilot steps, verification checklist, and rollout/rollback actions. |
 | [Release and Allowlist False-Positive Phishing Quarantine (Microsoft 365 Defender)](sops/SOP%20-%20Release%20and%20Allowlist%20False-Positive%20Phishing%20Quarantine%20(Microsoft%20365%20Defender).md) | Diagnosing a Defender quarantine verdict, telling a false-positive phishing block apart from real spoofing via SPF/DKIM/DMARC, and safely overriding it with a Tenant Allow/Block List entry. |
+| [PDCA Plan: Atera MSP Environment Setup (Replacing Syxsense)](sops/atera-syxsense-migration-pdca.md) | Plan-Do-Check-Act migration plan for replacing Syxsense with Atera as the MSP/RMM platform — objective, scope, feature-gap risks, dated timeline, and decommission checklist. |
 
 ## Adding a new SOP
 
