@@ -94,7 +94,8 @@ Before migrating a customer, confirm parity (or an accepted gap) for anything th
 ### 1. Sign up for Atera (2026-09-01)
 - Start the **30-day free trial** (select the plan/tier based on current endpoint count and required features — confirm patch management and remote access are included at the tier you'll eventually convert to).
 - Note the trial expiration date (~2026-10-01) — this account is the one that gets converted to paid, not a separate signup.
-- Add technician user accounts; enable MFA/2FA for all logins.
+- Technician account for this trial: `partners@sjultra.com` (sole technician).
+- **2FA is off by default — turn it on manually.** It is *not* auto-enforced the way Atera's help docs describe; there's an **Enable 2FA** toggle in **Admin → Users and security → Security and authentication** that was disabled out of the box. Enable it now rather than waiting.
 - **Before 09/30:** convert trial to a paid subscription ("go live") — do this ahead of the 10/6 vacation departure so the account needs no attention while away.
 
 ### 2. Core environment configuration
