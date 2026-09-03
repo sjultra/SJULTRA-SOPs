@@ -15,6 +15,7 @@ Standard Operating Procedures for SJULTRA IT operations. This repo is a living i
 | [PDCA Plan: Atera MSP Environment Setup (Replacing Syxsense)](sops/atera-syxsense-migration-pdca.md) | Plan-Do-Check-Act migration plan for replacing Syxsense with Atera as the MSP/RMM platform — objective, scope, feature-gap risks, dated timeline, and decommission checklist. |
 | [Block Access to an Amazon Bedrock Foundation Model (SCP + IAM Deny)](sops/SOP%20-%20Block%20Amazon%20Bedrock%20Model%20Access%20%28SCP%20%2B%20IAM%20Deny%29.md) | How to block a Bedrock foundation model (SCP and/or IAM Deny) now that AWS has retired the self-service Model access page — single account or org-wide. |
 | [Runbook: Block anthropic.claude-sonnet-4-6 in Sandbox Account (279199950628)](sops/aws-bedrock-claude-sonnet-4-6-sandbox-block-runbook.md) | Specific execution of the SOP above — exact SCP JSON, attach/verify/rollback steps for the Aug 2026 Bedrock cost anomaly in the Sandbox account. |
+| [Reclaim a Departed Employee's Email Address as a Distribution List (Hybrid AD + Exchange Online)](sops/SOP%20-%20Reclaim%20a%20Departed%20Employee%27s%20Email%20Address%20as%20a%20Distribution%20List%20%28Hybrid%20AD%20%2B%20Exchange%20Online%29.md) | Freeing a shared address (e.g. info@) off a departed employee's directory-synced mailbox and handing it to a distribution list — covers the on-prem write-scope block, UAC token-filtering false alarm, and default-primary-address gotchas. |
 
 ## Adding a new SOP
 
