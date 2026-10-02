@@ -53,7 +53,8 @@ All tests used an external Gmail sender and message trace; a redirect shows `ibe
 | User mailbox A, dynamic groups only again | 43 min after removing the static group | Redirected |
 | User mailboxes A and B, 49-member static group | ~19 min after rule save; neither on any individual exception | Delivered |
 | User mailbox C | Delivered, but on the individual exception list | Not counted |
-| Distribution group `ops@` | Delivered, but separately listed in the rule | Weak evidence only (see Open Items) |
+| Distribution group `ops@` | Delivered, but separately listed in the rule | Weak evidence only |
+| Distribution group `info@` | Not named anywhere in the rule | Delivered |
 | Brand-new shared mailbox, not yet in the group | Baseline | Redirected (expected) |
 | Same mailbox, added to the group | Tested at 6, 15, and 37 min after adding | Redirected each time |
 | Same mailbox, rule re-saved at ~55 min | Next test at 3 h 7 min after adding (2 h 12 min after the re-save) | Delivered |
@@ -176,7 +177,7 @@ Still failing --> individual exception (ExceptIfSentTo) as stopgap, escalate
 ### Open Items
 
 - **Automated membership sync** is not built. A scheduled job (Azure Automation runbook, not a machine that has to stay on) should run step 4 on an interval. Companion SOP to follow once it has been built and tested.
-- **Group recipients** (distribution lists and Microsoft 365 Groups addressed directly, e.g. `info@`) are not validated. The one test (`ops@`) was delivered but is separately listed in the rule, so it proves little. Before relying on this for group addresses, test an unlisted distribution list; if it is redirected, exempt group addresses by address using `ExceptIfSentTo` instead of by membership.
+- **Group recipients:** an unlisted distribution list (`info@`) was delivered normally, so distribution lists appear to be covered without being added to the exemption group. Likely reason (not confirmed): message trace shows the list expanding into its members before the rule events, so the rule appears to evaluate each member, and the members are in the exemption group. If that is right, a list whose members include recipients outside the covered domains is unaffected (the rule only evaluates the covered domains). Microsoft 365 Groups were not tested; most of ours reject external senders at the group level anyway. If a group address is ever redirected, exempt it by address using `ExceptIfSentTo`.
 - **Re-save vs. latency** for newly added members is unresolved (see the last two rows of the test table).
 - **Legacy dynamic groups** still on the rule should be removed after a stability period.
 
