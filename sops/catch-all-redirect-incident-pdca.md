@@ -1,5 +1,7 @@
 # Case Study (PDCA): Real Mailboxes Redirected by the `ibenit-catch-all` Transport Rule
 
+> **Correction (2026-10-02):** The conclusion below — that the rule needs a dynamic group "re-bound" and that this resolves the problem — did not hold up. Further mailboxes failed after re-binds even though they matched the group filter. A static mail-enabled security group *is* honored by the rule where the dynamic groups were not, and that is the current fix. The root cause of the dynamic-group failure is still unknown. See the Triage Summary and procedure in [the SOP](catch-all-redirect-setup-sop.md), which supersedes this document's Act section. The history below is kept as a record of what we believed at the time.
+
 **Affected account context:** Started as a report of shared mailboxes on `sjultra.com` getting external mail redirected instead of delivered; widened partway through to include a regular user mailbox, which surfaced a second, unrelated root cause.
 
 ---
@@ -50,7 +52,7 @@ Fixes applied and verified:
 
 ## Act
 
-- **Resolved.** The root cause was not propagation lag: an Exchange Online transport rule does not automatically re-evaluate a referenced dynamic distribution group's `RecipientFilter` after it changes, even after multiple days. The rule must be forced to re-bind by removing the group from `ExceptIfSentToMemberOf` and adding it back in the same session, immediately after any future filter edit.
+- **Superseded (see the correction at the top).** As originally written: the root cause was not propagation lag: an Exchange Online transport rule does not automatically re-evaluate a referenced dynamic distribution group's `RecipientFilter` after it changes, even after multiple days. The rule must be forced to re-bind by removing the group from `ExceptIfSentToMemberOf` and adding it back in the same session, immediately after any future filter edit.
 - **Standardized into a repeatable procedure**: [Build a Domain-Scoped Catch-All/Redirect Rule with Self-Maintaining Exceptions](catch-all-redirect-setup-sop.md), so this same pattern (and both gotchas found here — the `SMTP:`/`smtp:` casing gap and the mandatory group re-bind step) can be applied to any other domain or tenant without repeating this diagnosis.
 - **Standing practice going forward:** if anyone reports this issue again, add the affected address to `ExceptIfSentTo` immediately to unblock the person, then apply the group re-bind step from the SOP above — no need to re-diagnose from scratch each time.
 - **Documented dead end:** `Get-Recipient -RecipientPreviewFilter` cannot be used to validate these groups' membership in this tenant — it returns empty results for `-like` filters regardless of the property being matched, even when the group is working correctly in live mail flow. Use a `Get-Mailbox | Where-Object` simulation instead.
