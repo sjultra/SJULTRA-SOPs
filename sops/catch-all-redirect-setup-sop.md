@@ -1,6 +1,6 @@
 ## Process Document: Build a Domain-Scoped Catch-All/Redirect Rule with Exempted Real Recipients (Exchange Online)
 
-**Owner:** IT/Security Administrator (Exchange Administrator role) | **Last Updated:** 2026-10-02 | **Review Cadence:** Whenever a new domain needs catch-all coverage, and after any change to the rule's exception list
+**Owner:** IT/Security Administrator (Exchange Administrator role) | **Last Updated:** 2026-10-03 | **Review Cadence:** Whenever a new domain needs catch-all coverage, and after any change to the rule's exception list
 
 ### Purpose
 
@@ -38,6 +38,8 @@ We did **not** identify why the rule fails to honor the dynamic groups. The proc
 
 - Scoped the rule to the three catch-all domains (`RecipientDomainIs`).
 - Created one static mail-enabled security group (`CatchAll-Exempt-Recipients`), hidden from address lists, and populated it from a live enumeration of every user mailbox, shared mailbox, room/equipment mailbox, mail user, and mail contact on those domains (49 members).
+- Later found that the list of recipient types was incomplete: a breakdown of every recipient type on the covered domains showed 11 Bookings (scheduling) mailboxes that the enumeration skipped. They are real recipients that receive customer mail. Added `SchedulingMailbox` to the type list and added them to the group (60 members).
+- Pruned unused Bookings mailboxes and checked mailbox forwarding on the covered domains; forwards to accounts that no longer exist were found and cleaned up (outside the scope of this procedure, but worth doing before relying on any of this).
 - Added that group to the rule's `ExceptIfSentToMemberOf` list.
 - Pruned stale test entries and duplicates from the individual exception list.
 - Left the legacy dynamic groups on the rule for now (harmless); they can be removed after a stability period.
@@ -58,8 +60,10 @@ All tests used an external Gmail sender and message trace; a redirect shows `ibe
 | Brand-new shared mailbox, not yet in the group | Baseline | Redirected (expected) |
 | Same mailbox, added to the group | Tested at 6, 15, and 37 min after adding | Redirected each time |
 | Same mailbox, rule re-saved at ~55 min | Next test at 3 h 7 min after adding (2 h 12 min after the re-save) | Delivered |
+| Bookings mailbox, added to the group ~40 min earlier | Mailbox forwards to a staff member | The mailbox's own copy was redirected; the forwarded copy delivered |
+| Same Bookings mailbox, about 2 hours after being added | No rule change in between | Delivered, no catch-all events |
 
-What this establishes: a static group's *existing* members are honored within about 20 minutes of a rule save; a *newly added* member took longer than 37 minutes and was covered by about 3 hours. We did not test between 55 minutes and 3 hours, so we do not know whether the re-save was required or the member simply took a few hours.
+What this establishes: a static group's *existing* members are honored within about 20 minutes of a rule save; a *newly added* member took longer than 37 minutes and was covered by about 3 hours (a second case, a Bookings mailbox, was covered within about 2 hours, with no rule save in between). We did not test between 55 minutes and 3 hours for the first mailbox, so we cannot say precisely how long it takes, but the second case suggests the re-save is not required.
 
 ---
 
@@ -125,11 +129,18 @@ Still failing --> individual exception (ExceptIfSentTo) as stopgap, escalate
    Set-DistributionGroup -Identity $group -HiddenFromAddressListsEnabled $true
    ```
 
-4. **Populate it from a live enumeration** of every real recipient on the covered domains, then verify nothing was skipped.
+4. **Populate it from a live enumeration** of every real recipient on the covered domains, then verify nothing was skipped. **First, look at which recipient types actually exist on those domains**, so the type list below matches your tenant. We missed Bookings (scheduling) mailboxes the first time because we assumed the list instead of checking:
+   ```powershell
+   $domains = @("example.com")
+   Get-Recipient -ResultSize Unlimited |
+       Where-Object { $a = $_.EmailAddresses; $domains | Where-Object { $a -like "*@$_" } } |
+       Group-Object RecipientTypeDetails | Sort-Object Count -Descending | Select-Object Count, Name
+   ```
+   Decide per type whether it receives real mail. Groups (distribution lists, Microsoft 365 Groups, dynamic groups) are deliberately left out of the list below; guest users were left out too.
    ```powershell
    $domains = @("example.com")
 
-   $recipients = Get-Recipient -ResultSize Unlimited -RecipientTypeDetails UserMailbox,SharedMailbox,RoomMailbox,EquipmentMailbox,MailUser,MailContact |
+   $recipients = Get-Recipient -ResultSize Unlimited -RecipientTypeDetails UserMailbox,SharedMailbox,RoomMailbox,EquipmentMailbox,SchedulingMailbox,MailUser,MailContact |
        Where-Object { $a = $_.EmailAddresses; $domains | Where-Object { $a -like "*@$_" } }
 
    foreach ($r in $recipients) {
@@ -157,7 +168,7 @@ Still failing --> individual exception (ExceptIfSentTo) as stopgap, escalate
      ```powershell
      Add-DistributionGroupMember -Identity "CatchAll-Exempt-Recipients" -Member new.mailbox@example.com
      ```
-   - **Safety net**: re-run the step 4 population block on a schedule (manually until the automated sync SOP exists).
+   - **Safety net**: re-run the step 4 population block on a schedule. We run it as an Azure Automation job every 4 hours (see Open Items); running it by hand works too.
    - Until a new mailbox is covered, its mail is redirected to the triage mailbox, not lost.
 
 8. **Individual exception as an always-available stopgap.** If a specific person is blocked right now, don't wait on the group:
@@ -176,9 +187,9 @@ Still failing --> individual exception (ExceptIfSentTo) as stopgap, escalate
 
 ### Open Items
 
-- **Automated membership sync** is not built. A scheduled job (Azure Automation runbook, not a machine that has to stay on) should run step 4 on an interval. Companion SOP to follow once it has been built and tested.
+- **Automated membership sync** is built and scheduled: an Azure Automation runbook (managed identity, `ExchangeOnlineManagement` 3.4.0 on the PowerShell 7.2 runtime; 3.10.1 failed to load there) runs every 4 hours, adds missing recipients, and removes stale ones with a cap on removals per run. Its companion SOP has not been written yet; it will follow after a few days of clean scheduled runs.
 - **Group recipients:** an unlisted distribution list (`info@`) was delivered normally, so distribution lists appear to be covered without being added to the exemption group. Likely reason (not confirmed): message trace shows the list expanding into its members before the rule events, so the rule appears to evaluate each member, and the members are in the exemption group. If that is right, a list whose members include recipients outside the covered domains is unaffected (the rule only evaluates the covered domains). Microsoft 365 Groups were not tested; most of ours reject external senders at the group level anyway. If a group address is ever redirected, exempt it by address using `ExceptIfSentTo`.
-- **Re-save vs. latency** for newly added members is unresolved (see the last two rows of the test table).
+- **Re-save vs. latency** for newly added members is not fully resolved. The Bookings mailbox was covered within about 2 hours with no rule save, which suggests a re-save is not required, but it is one case.
 - **Legacy dynamic groups** still on the rule should be removed after a stability period.
 
-*Last updated: 2026-10-02*
+*Last updated: 2026-10-03*
